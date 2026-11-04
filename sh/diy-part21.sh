@@ -65,3 +65,8 @@ CONFIG_PACKAGE_luci-app-dockerman=y
 CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
 CONFIG_PACKAGE_docker-compose=y
 CFGEOF
+
+# ===== 启用 libffi（python3 _ctypes 编译依赖，缺 ffi.h 会导致编译失败）=====
+cat >> .config <<'CFGEOF'
+CONFIG_PACKAGE_libffi=y
+CFGEOF
