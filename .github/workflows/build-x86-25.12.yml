@@ -20,7 +20,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
+
+      - name: Switch to openwrt v25.12.6
+        run: |
+          mkdir -p /tmp/custom
+          cp config/x86-25.12.config /tmp/custom/x86-25.12.config
+          cp feeds.conf.default /tmp/custom/feeds.conf.default
+          git checkout v25.12.6
+          mkdir -p config
+          cp /tmp/custom/x86-25.12.config config/x86-25.12.config
+          cp /tmp/custom/feeds.conf.default feeds.conf.default
+          echo "=== source version ==="
+          grep -E '^RELEASE|^VERSION' include/version.mk 2>/dev/null || true
 
       - name: Initialization environment
         run: |
@@ -45,8 +57,9 @@ jobs:
 
       - name: Remove conflicting packages
         run: |
-          # sane-backends 定义了 group "scanner"，与 package/system/hardware-support 冲突
+          # 这些包自定义 group，若与源码 hardware-support 冲突会导致 defconfig 失败
           rm -rf package/feeds/packages/sane-backends
+          rm -rf package/feeds/packages/tvheadend
 
       - name: Load custom configuration
         run: |
@@ -83,7 +96,3 @@ jobs:
           fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Delete old workflows run cache
-        if: always()
-        run: echo "done"
