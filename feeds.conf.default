@@ -7,6 +7,7 @@ src-git passwall2 https://github.com/Openwrt-Passwall/openwrt-passwall2.git^176e
 src-git passwall_packages https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git^da712cf06cf4e6fd39e147fb36e6ec936003fcc9
 src-git argon https://github.com/jerrykuku/luci-theme-argon.git^378db9f62bdc843cc71c58a9c01f94b817508c66
 src-git argonconfig https://github.com/jerrykuku/luci-app-argon-config.git^9f096c916c16be8075610dd137d3b18982f81f1e
+src-git vantage https://github.com/anothaDev/luci-theme-vantage.git^9feb1e0d3be8a16bb22a3fc2f62b546676659d7d
 src-git aurora https://github.com/eamonxg/luci-theme-aurora.git^298dbcc74ddf820923a51285fb0826d429e5d7ca
 src-git run https://github.com/wukongdaily/luci-app-run.git^a114f683c19bcac4b8c378048e94408bed183b2f
 src-git quickfile https://github.com/sbwml/luci-app-quickfile.git^ef2ca5d16ad1156539930d8763c3069f6ac4eb12
