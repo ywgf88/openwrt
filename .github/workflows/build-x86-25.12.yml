@@ -56,6 +56,19 @@ jobs:
       - name: Install feeds
         run: ./scripts/feeds install -a
 
+      - name: Fix luci-theme-argon package
+        run: |
+          # luci-theme-argon 3.x 的 Makefile 没有定义 PKG_NAME，25.12 的 feeds
+          # 扫描器无法识别，整个 argon feed 会被跳过（Ignoring feed 'argon' - index missing）。
+          # 直接复制到 package/ 并补上 PKG_NAME，保证它能进入 defconfig。
+          if [ -d feeds/argon ]; then
+            rm -rf package/luci-theme-argon
+            mkdir -p package/luci-theme-argon
+            cp -r feeds/argon/. package/luci-theme-argon/
+            grep -q '^PKG_NAME' package/luci-theme-argon/Makefile || \
+              sed -i '1a PKG_NAME:=luci-theme-argon' package/luci-theme-argon/Makefile
+          fi
+
       - name: Remove conflicting packages
         run: |
           # 这些包自定义 group，若与源码 hardware-support 冲突会导致 defconfig 失败
