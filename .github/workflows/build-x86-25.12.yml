@@ -65,6 +65,8 @@ jobs:
             rm -rf package/luci-theme-argon
             mkdir -p package/luci-theme-argon
             cp -r feeds/argon/. package/luci-theme-argon/
+            # 剔除 git 元数据，避免扫描器遍历上千个历史文件拖慢 defconfig
+            rm -rf package/luci-theme-argon/.git package/luci-theme-argon/.github
             grep -q '^PKG_NAME' package/luci-theme-argon/Makefile || \
               sed -i '1a PKG_NAME:=luci-theme-argon' package/luci-theme-argon/Makefile
           fi
@@ -78,7 +80,9 @@ jobs:
       - name: Load custom configuration
         run: |
           cp "$CONFIG_FILE" .config
-          make defconfig
+          echo "defconfig start: $(date -u +%H:%M:%S)"
+          timeout 3000 make defconfig || { echo "defconfig FAILED at $(date -u +%H:%M:%S)"; exit 1; }
+          echo "defconfig done: $(date -u +%H:%M:%S)"
 
       - name: Compile the firmware
         run: |
