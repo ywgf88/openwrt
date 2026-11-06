@@ -84,10 +84,28 @@ jobs:
           timeout 3000 make defconfig || { echo "defconfig FAILED at $(date -u +%H:%M:%S)"; exit 1; }
           echo "defconfig done: $(date -u +%H:%M:%S)"
 
+      - name: Add swap space
+        run: |
+          # runner 内存有限，-j 并行编译时容易 OOM 导致 runner 失联；加 8G swap 兜底
+          sudo fallocate -l 8G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=8192
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
       - name: Compile the firmware
         run: |
-          make -j$(nproc) download
-          make -j$(nproc) || make -j1 || make -j1 V=s
+          set -o pipefail
+          make -j$(nproc) download 2>&1 | tee /tmp/build.log
+          make -j$(nproc) 2>&1 | tee -a /tmp/build.log || make -j1 2>&1 | tee -a /tmp/build.log || make -j1 V=s 2>&1 | tee -a /tmp/build.log
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: /tmp/build.log
+          retention-days: 7
 
       - name: Organize files
         if: success()
