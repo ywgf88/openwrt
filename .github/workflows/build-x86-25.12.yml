@@ -85,12 +85,14 @@ jobs:
           echo "defconfig done: $(date -u +%H:%M:%S)"
 
       - name: Add swap space
+        continue-on-error: true
         run: |
-          # runner 内存有限，-j 并行编译时容易 OOM 导致 runner 失联；加 8G swap 兜底
-          sudo fallocate -l 8G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=8192
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          free -h
+          # runner 自带 /swapfile 且可能已启用，写同名文件会报 Text file busy，这里用独立文件名
+          sudo fallocate -l 8G /swapfile-extra 2>/dev/null || sudo dd if=/dev/zero of=/swapfile-extra bs=1M count=8192
+          sudo chmod 600 /swapfile-extra
+          sudo mkswap /swapfile-extra
+          sudo swapon /swapfile-extra
           free -h
 
       - name: Compile the firmware
